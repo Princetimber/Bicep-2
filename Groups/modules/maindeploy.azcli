@@ -1,0 +1,1 @@
+az deployment sub create -n deployResourceGroup --location uksouth --template-file ./rg.bicep
