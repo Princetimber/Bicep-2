@@ -1,0 +1,43 @@
+{
+	"folders": [
+		{
+			"name": "Groups",
+			"path": "./Groups"
+		},
+		{
+			"name": "networking",
+			"path": "./networking"
+		},
+		{
+			"name": "security",
+			"path": "./security"
+		},
+		{
+			"name": "compute",
+			"path": "./compute"
+		}
+	],
+	"settings": {
+		"bicep.completions.getAllAccessibleAzureContainerRegistries": true,
+		"[bicep][bicep-params]": {
+			"editor.tabSize": 2,
+			"editor.insertSpaces": true,
+			"files.insertFinalNewline": true,
+			"editor.suggestSelection": "first",
+			"editor.suggest.snippetsPreventQuickSuggestions": false,
+			"editor.suggest.showWords": false,
+			"editor.defaultFormatter": "ms-azuretools.vscode-bicep"
+		},
+		"[azcli]": {
+			"editor.defaultFormatter": "ms-vscode.azurecli"
+		},
+		"powershell.cwd": "Groups"
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-azuretools.vscode-bicep",
+			"ms-vscode.azurecli",
+			"github.copilot"
+		]
+	}
+}
