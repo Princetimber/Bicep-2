@@ -17,14 +17,15 @@
  */
 @description('network security group location')
 param location string = resourceGroup().location
-@description('network security group name suffix')
-param suffix string
+
+@description('name of the network security group to create.')
+param name string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}nsg'
+
 @description('source address prefixes')
 param sourceAddressPrefixes array
+
 @description('destination address prefixe')
 param destinationAddressPrefix string
-
-var name = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}${suffix}'
 
 resource nsg 'Microsoft.Network/networkSecurityGroups@2023-06-01' = {
   name: name
