@@ -116,6 +116,12 @@ param autoShutdownNotificationTimeInMinutes int = 30
 @description('autoshutdown notification locale')
 param autoShutdownNotificationLocale string = 'en'
 
+@description('tenantId of the subscription')
+param tenantId string = subscription().tenantId
+
+@description('aadClientId of the subscription')
+param aadClientId string
+
 var virtualMachineCountRange = range(0, virtualMachineCount)
 resource vnet 'Microsoft.Network/virtualNetworks@2023-06-01' existing = {
   name: vnetName
@@ -258,6 +264,31 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-09-01' = [for i 
         vTpmEnabled: true
       }
     }
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+}]
+resource extension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = [for i in virtualMachineCountRange: {
+  parent: virtualMachine[i]
+  name: '${vmName}${i + 1}AADSSHLoginForLinux'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.ActiveDirectory'
+    type: 'AADLoginForLinux'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {
+      aadLoginForLinuxConfiguration: {
+        aadAuthority: environment().portal
+        aadTenantId: tenantId
+        aadClientId: aadClientId
+        sshPublicKey: sshPassphraseKey
+      }
+    }
+    provisionAfterExtensions: [
+      'Microsoft.Compute.LinuxDiagnostic'
+    ]
   }
 }]
 
