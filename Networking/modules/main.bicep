@@ -33,7 +33,6 @@ module nsg '../networkSecurityGroup/main.bicep' = {
       '10.0.1.0/28'
       '10.0.4.0/24'
     ]
-    suffix: 'nsg'
   }
 }
 output nsgId string = nsg.outputs.nsgId
@@ -43,8 +42,6 @@ module vnet '../virtualNetworks/main.bicep' = {
   name: 'virtual-network'
   params: {
     location: location
-    nsgSuffix: 'nsg'
-    vnetSuffix: 'vnet'
     vnetNewOrExisting: 'new'
     vnetAddressPrefixes: [
       '100.15.0.0/16'
@@ -79,11 +76,7 @@ module natgateway '../natGateway/main.bicep' = {
   name: 'nat-gateway'
   params: {
     location: location
-    nameSuffix: ''
-    publicIpNameSuffix: ''
-    networkSecurityGroupNameSuffix: ''
-    subnetName: ''
-    virtualNetworkNameSuffix: ''
+    subnetName: 'subnet1'
   }
   dependsOn: [
     vnet
@@ -95,7 +88,6 @@ module privateDNS '../privateDNS/main.bicep' = {
   name: 'privatednszone'
   params: {
     privateDnsZoneName: ''
-    vnetNameSuffix: ''
     location: 'Global'
     autoVmRegistration: true
   }
@@ -107,17 +99,15 @@ output pDNSName string = privateDNS.outputs.privateDnszoneName
 output pDNSId string = privateDNS.outputs.privateDnszoneId
 
 module gateways '../gateway/main.bicep' = {
-  name: 'gateways'
+  name: 'lg-vg-gateways'
   params: {
     location: location
     addressPrefixes: [
       '10.0.3.0/25'
     ]
-    localGatewayPublicIpAddress: '62.15.32.157/32'
-    nameSuffix: ''
+    localGatewayPublicIpAddress: ''
     PublicIpName: ''
-    vnetGatewayNameSuffix: ''
-    vnetNameSuffix: ''
+    subnetName: 'gatewaySubnet'
   }
   dependsOn: [
     vnet
@@ -131,9 +121,7 @@ module vpnConnection '../vpn/main.bicep' = {
   ]
   params: {
     connectionName: ''
-    localNetworkGatewayNameSuffix: ''
     sharedKey: ''
-    vnetgatewayNameSuffix: ''
     location: location
   }
 }

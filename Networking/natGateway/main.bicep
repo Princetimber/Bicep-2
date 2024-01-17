@@ -1,21 +1,24 @@
 @description('location of the resource')
 param location string = resourceGroup().location
-@description('name suffix for the nat gateway')
-param nameSuffix string
-@description('name suffix of the public ip address')
-param publicIpNameSuffix string
-@description('name of subnet to deploy the nat gateway in')
-param subnetName string
-@description('name suffix of the virtual network to deploy the nat gateway in')
-param virtualNetworkNameSuffix string
-@description('name suffix of the network security group to deploy the nat gateway in')
-param networkSecurityGroupNameSuffix string
 
-var resourceGroupName = toLower(replace(resourceGroup().name, 'uksouthrg', ''))
-var natGatewayName = '${resourceGroupName}${nameSuffix}'
-var publicIpName = '${resourceGroupName}${publicIpNameSuffix}'
-var virtualNetworkName = '${resourceGroupName}${virtualNetworkNameSuffix}'
-var networkSecurityGroupName = '${resourceGroupName}${networkSecurityGroupNameSuffix}'
+@description('name for the nat gateway')
+param natGatewayName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}natgw'
+
+@description('name of the public ip address')
+param publicIpName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}pip'
+
+@description('name of subnet to deploy the nat gateway in')
+@allowed([
+  'subnet1'
+  'subnet2'
+])
+param subnetName string
+
+@description('name of the virtual network to deploy the nat gateway in')
+param virtualNetworkName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}vnet'
+
+@description('name of the network security group to deploy the nat gateway in')
+param networkSecurityGroupName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}nsg'
 
 resource nsg 'Microsoft.Network/networkSecurityGroups@2023-06-01' existing = {
   name: networkSecurityGroupName

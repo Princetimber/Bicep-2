@@ -15,10 +15,11 @@
 */
 @description('resource group location')
 param location string = resourceGroup().location
-@description('virtual network name suffix')
-param vnetSuffix string
-@description('nsg name suffix')
-param nsgSuffix string
+
+@description('name of the virtual network to be created. The name will be prefixed with the resource group name by adding the suffix "vnet".')
+param vnetName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}vnet'
+@description('name of the nsg to be created. The name will be prefixed with the resource group name.')
+param nsgName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}nsg'
 @description('virtual network address prefixes')
 param vnetAddressPrefixes array
 @description('virtual network subnets')
@@ -35,9 +36,6 @@ param dnsServers array
   'existing'
 ])
 param vnetNewOrExisting string
-
-var vnetName = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}${vnetSuffix}'
-var nsgName = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}${nsgSuffix}'
 
 resource nsg 'Microsoft.Network/networkSecurityGroups@2023-06-01' existing = {
   name: nsgName

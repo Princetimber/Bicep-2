@@ -8,16 +8,19 @@
 */
 @description('The name of the private DNS zone to create.')
 param privateDnsZoneName string
+
 @description('Check if the VMs should be registered in the private DNS zone. Expected values are true or false.')
 param autoVmRegistration bool = true
-@description('The name suffix of the virtual network to create.')
-param vnetNameSuffix string
+
+@description('The name of the virtual network to create. The name will be appended with vnet.')
+param vnetName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}vnet'
+
+@description('The tags to associate with the private DNS zone.')
 param tags object = {
   Environment: 'Dev'
 }
 param location string = 'Global'
 
-var vnetName = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}${vnetNameSuffix}'
 resource vnet 'Microsoft.Network/virtualNetworks@2023-06-01' existing = {
   name: vnetName
   scope: resourceGroup()
