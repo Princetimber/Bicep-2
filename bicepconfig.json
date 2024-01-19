@@ -107,7 +107,7 @@
 				"use-parent-property": {
 					"level": "warning"
 				},
-				"max-asserts":{
+				"max-asserts": {
 					"level": "error"
 				},
 				"nested-deployment-template-scoping": {
@@ -142,16 +142,6 @@
 				"activeDirectoryAuthority": "https://login.microsoftonline.com/"
 			}
 		}
-	},
-	"experimentalFeaturesEnabled": {
-		"asserts": true,
-		"compileTimeImports": true,
-		"dynamicTypeLoading": true,
-		"extensibility": true,
-		"userDefinedFunctions": true,
-		"sourceMapping": true,
-		"symbolicNameCodegen": true,
-		"testFramework": true
 	},
 	"cacheRootDirectory": ".bicep/cache",
 	"formatting": {

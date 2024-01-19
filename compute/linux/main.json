@@ -1,0 +1,507 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.24.24.22086",
+      "templateHash": "1885561759439825677"
+    }
+  },
+  "parameters": {
+    "vmName": {
+      "type": "string",
+      "metadata": {
+        "description": "name of the VM to be created."
+      }
+    },
+    "vmSku": {
+      "type": "string",
+      "allowedValues": [
+        "22_04-lts-gen2",
+        "18_04-lts-gen2",
+        "19_04-gen2"
+      ],
+      "metadata": {
+        "description": "VM Sku"
+      }
+    },
+    "storageAccountType": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS",
+        "Premium_LRS"
+      ],
+      "metadata": {
+        "description": "storage account type"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "allowedValues": [
+        "standard_DS1_v2",
+        "standard_DS2_v2",
+        "standard_D2s_v3"
+      ],
+      "metadata": {
+        "description": "size of the VM"
+      }
+    },
+    "vmDiskSize": {
+      "type": "int",
+      "defaultValue": 128,
+      "minValue": 60,
+      "maxValue": 1024,
+      "metadata": {
+        "description": "vm disk size in GB"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "admin account username"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "admin account password"
+      }
+    },
+    "sshPassphraseKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "ssh passphraseKey."
+      }
+    },
+    "virtualMachineCount": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "maxValue": 10,
+      "metadata": {
+        "description": "minimum number of VMs to be created"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "resource location"
+      }
+    },
+    "availabilitySetName": {
+      "type": "string",
+      "defaultValue": "[format('{0}avset', toLower(replace(resourceGroup().name, 'uksouthrg', '')))]",
+      "metadata": {
+        "description": "availability set name"
+      }
+    },
+    "proximityPlacementGroupName": {
+      "type": "string",
+      "defaultValue": "[format('{0}ppg', toLower(replace(resourceGroup().name, 'uksouthrg', '')))]",
+      "metadata": {
+        "description": "proximity placement group name"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "[format('{0}vnet', toLower(replace(resourceGroup().name, 'uksouthrg', '')))]",
+      "metadata": {
+        "description": "virtual network name"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "[format('{0}stga', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "storage account name"
+      }
+    },
+    "networkInterfaceName": {
+      "type": "string",
+      "defaultValue": "[format('{0}nic', toLower(replace(resourceGroup().name, 'uksouthrg', '')))]",
+      "metadata": {
+        "description": "network interface name."
+      }
+    },
+    "dnsServers": {
+      "type": "array",
+      "metadata": {
+        "description": "dns servers for vm."
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "allowedValues": [
+        "subnet1",
+        "subnet2"
+      ],
+      "metadata": {
+        "description": "name of subnet where VMs will be created."
+      }
+    },
+    "publisherName": {
+      "type": "string",
+      "defaultValue": "Canonical",
+      "metadata": {
+        "description": "publisher name for the image"
+      }
+    },
+    "offer": {
+      "type": "string",
+      "allowedValues": [
+        "UbuntuServer",
+        "0001-com-ubuntu-server-focal",
+        "0001-com-ubuntu-server-bionic",
+        "0001-com-ubuntu-server-jammy"
+      ],
+      "metadata": {
+        "description": "offer name for the image"
+      }
+    },
+    "autoShutdownStatus": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "metadata": {
+        "description": "autoshutdown status"
+      }
+    },
+    "autoShutdownTime": {
+      "type": "string",
+      "defaultValue": "18:00",
+      "metadata": {
+        "description": "autoshutdown time"
+      }
+    },
+    "autoShutdownTimeZone": {
+      "type": "string",
+      "defaultValue": "GMT Standard Time",
+      "metadata": {
+        "description": "autoshutdown timezone"
+      }
+    },
+    "autoShutdownNotificationStatus": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "metadata": {
+        "description": "autoshutdown notification status"
+      }
+    },
+    "autoShutdownNotificationEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "autoshutdown notification email"
+      }
+    },
+    "autoShutdownNotificationTimeInMinutes": {
+      "type": "int",
+      "defaultValue": 30,
+      "metadata": {
+        "description": "autoshutdown notification time in minutes"
+      }
+    },
+    "autoShutdownNotificationLocale": {
+      "type": "string",
+      "defaultValue": "en",
+      "metadata": {
+        "description": "autoshutdown notification locale"
+      }
+    },
+    "tenantId": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]",
+      "metadata": {
+        "description": "tenantId of the subscription"
+      }
+    },
+    "aadClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "aadClientId of the subscription"
+      }
+    }
+  },
+  "variables": {
+    "virtualMachineCountRange": "[range(0, parameters('virtualMachineCount'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/proximityPlacementGroups",
+      "apiVersion": "2023-09-01",
+      "name": "[parameters('proximityPlacementGroupName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "proximityPlacementGroupType": "Standard",
+        "colocationStatus": {
+          "code": "Aligned",
+          "displayStatus": "Aligned",
+          "level": "Error",
+          "message": "Aligned"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2023-09-01",
+      "name": "[parameters('availabilitySetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2,
+        "proximityPlacementGroup": {
+          "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups', parameters('proximityPlacementGroupName'))]"
+        }
+      },
+      "sku": {
+        "name": "Aligned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/proximityPlacementGroups', parameters('proximityPlacementGroupName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "nic",
+        "count": "[length(variables('virtualMachineCountRange'))]"
+      },
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2023-06-01",
+      "name": "[format('{0}{1}{2}', parameters('vmName'), parameters('networkInterfaceName'), add(variables('virtualMachineCountRange')[copyIndex()], 1))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[format('ipconfig{0}', add(variables('virtualMachineCountRange')[copyIndex()], 1))]",
+            "properties": {
+              "primary": true,
+              "subnet": {
+                "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), parameters('subnetName'))]"
+              },
+              "privateIPAllocationMethod": "Dynamic",
+              "privateIPAddressVersion": "IPv4"
+            }
+          }
+        ],
+        "dnsSettings": {
+          "dnsServers": "[parameters('dnsServers')]"
+        },
+        "nicType": "Standard",
+        "enableIPForwarding": true
+      }
+    },
+    {
+      "copy": {
+        "name": "virtualMachine",
+        "count": "[length(variables('virtualMachineCountRange'))]"
+      },
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2023-09-01",
+      "name": "[format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
+        },
+        "proximityPlacementGroup": {
+          "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups', parameters('proximityPlacementGroupName'))]"
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[format('{0}{1}{2}', reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2023-01-01').primaryEndpoints.blob, parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1))]"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}{1}{2}', parameters('vmName'), parameters('networkInterfaceName'), add(variables('virtualMachineCountRange')[copyIndex()], 1)))]",
+              "properties": {
+                "deleteOption": "Delete"
+              }
+            }
+          ]
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]",
+          "vmSizeProperties": {
+            "vCPUsAvailable": 2,
+            "vCPUsPerCore": 1
+          }
+        },
+        "osProfile": {
+          "computerName": "[format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1))]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "provisionVMAgent": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+                  "keyData": "[parameters('sshPassphraseKey')]"
+                }
+              ]
+            },
+            "patchSettings": {
+              "assessmentMode": "ImageDefault",
+              "patchMode": "ImageDefault"
+            }
+          }
+        },
+        "storageProfile": {
+          "osDisk": {
+            "name": "[format('{0}{1}_osdisk', parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1))]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "diskSizeGB": "[parameters('vmDiskSize')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('storageAccountType')]"
+            },
+            "deleteOption": "Delete",
+            "osType": "Linux"
+          },
+          "imageReference": {
+            "publisher": "[parameters('publisherName')]",
+            "offer": "[parameters('offer')]",
+            "sku": "[parameters('vmSku')]",
+            "version": "latest"
+          }
+        },
+        "securityProfile": {
+          "securityType": "TrustedLaunch",
+          "uefiSettings": {
+            "secureBootEnabled": true,
+            "vTpmEnabled": true
+          }
+        }
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]",
+        "[resourceId('Microsoft.Compute/proximityPlacementGroups', parameters('proximityPlacementGroupName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "extension",
+        "count": "[length(variables('virtualMachineCountRange'))]"
+      },
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2023-09-01",
+      "name": "[format('{0}/{1}', format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[variables('virtualMachineCountRange')[copyIndex()]], 1)), format('{0}{1}AADSSHLoginForLinux', parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1)))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Azure.ActiveDirectory",
+        "type": "AADLoginForLinux",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "aadLoginForLinuxConfiguration": {
+            "aadAuthority": "[environment().portal]",
+            "aadTenantId": "[parameters('tenantId')]",
+            "aadClientId": "[parameters('aadClientId')]",
+            "sshPublicKey": "[parameters('sshPassphraseKey')]"
+          }
+        },
+        "provisionAfterExtensions": [
+          "Microsoft.Compute.LinuxDiagnostic"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[variables('virtualMachineCountRange')[copyIndex()]], 1)))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "diagnosticExtension",
+        "count": "[length(variables('virtualMachineCountRange'))]"
+      },
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2023-09-01",
+      "name": "[format('{0}/{1}', format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[variables('virtualMachineCountRange')[copyIndex()]], 1)), format('{0}{1}LinuxDiagnostic', parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1)))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Diagnostics",
+        "type": "LinuxDiagnostic",
+        "typeHandlerVersion": "4.0",
+        "autoUpgradeMinorVersion": true,
+        "enableAutomaticUpgrade": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[variables('virtualMachineCountRange')[copyIndex()]], 1)))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "autoshutdown_computeVM",
+        "count": "[length(variables('virtualMachineCountRange'))]"
+      },
+      "type": "Microsoft.DevTestLab/schedules",
+      "apiVersion": "2018-09-15",
+      "name": "[format('shutdown-computeVM-{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "status": "[parameters('autoShutdownStatus')]",
+        "taskType": "ComputeVmShutdownTask",
+        "dailyRecurrence": {
+          "time": "[parameters('autoShutdownTime')]"
+        },
+        "timeZoneId": "[parameters('autoShutdownTimeZone')]",
+        "notificationSettings": {
+          "status": "[parameters('autoShutdownNotificationStatus')]",
+          "notificationLocale": "[parameters('autoShutdownNotificationLocale')]",
+          "emailRecipient": "[parameters('autoShutdownNotificationEmail')]",
+          "timeInMinutes": "[parameters('autoShutdownNotificationTimeInMinutes')]"
+        },
+        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1)))]"
+      },
+      "dependsOn": [
+        "virtualMachine"
+      ]
+    }
+  ],
+  "outputs": {
+    "vmNames": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('virtualMachineCountRange'))]",
+        "input": "[format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1))]"
+      }
+    },
+    "vmIds": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('virtualMachineCountRange'))]",
+        "input": "[format('{0}', resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[variables('virtualMachineCountRange')[copyIndex()]], 1))))]"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "value": "[parameters('adminUsername')]"
+    },
+    "sshExecution": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('virtualMachineCountRange'))]",
+        "input": {
+          "name": "[format('{0}{1}', parameters('vmName'), add(variables('virtualMachineCountRange')[copyIndex()], 1))]",
+          "sshCommand": "[format('ssh {0}@{1} -i ~/.ssh/id_rsa', parameters('adminUsername'), reference(resourceId('Microsoft.Network/networkInterfaces', format('{0}{1}{2}', parameters('vmName'), parameters('networkInterfaceName'), add(variables('virtualMachineCountRange')[variables('virtualMachineCountRange')[copyIndex()]], 1))), '2023-06-01').ipConfigurations[variables('virtualMachineCountRange')[copyIndex()]].properties.privateIPAddress)]"
+        }
+      }
+    }
+  }
+}

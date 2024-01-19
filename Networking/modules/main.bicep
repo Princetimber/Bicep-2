@@ -30,6 +30,7 @@ module nsg '../networkSecurityGroup/main.bicep' = {
     location: location
     destinationAddressPrefix: 'virtualNetwork'
     sourceAddressPrefixes: [
+      '65.31.74.157/32'
       '10.0.1.0/28'
       '10.0.4.0/24'
     ]
@@ -44,20 +45,20 @@ module vnet '../virtualNetworks/main.bicep' = {
     location: location
     vnetNewOrExisting: 'new'
     vnetAddressPrefixes: [
-      '100.15.0.0/16'
+      '100.16.0.0/16'
     ]
     subnets: [
       {
         name: 'gatewaySubnet'
-        addressPrefix: '100.15.0.0/27'
+        addressPrefix: '100.16.0.0/27'
       }
       {
         name: 'subnet1'
-        addressPrefix: '100.15.1.0/24'
+        addressPrefix: '100.16.1.0/24'
       }
       {
         name: 'subnet2'
-        addressPrefix: '100.15.2.0/24'
+        addressPrefix: '100.16.2.0/24'
       }
     ]
     dnsServers: [
@@ -76,7 +77,6 @@ module natgateway '../natGateway/main.bicep' = {
   name: 'nat-gateway'
   params: {
     location: location
-    subnetName: 'subnet1'
   }
   dependsOn: [
     vnet
@@ -87,7 +87,7 @@ output natGatewayId string = natgateway.outputs.natGatewayId
 module privateDNS '../privateDNS/main.bicep' = {
   name: 'privatednszone'
   params: {
-    privateDnsZoneName: ''
+    privateDnsZoneName: 'intheclouds365.com'
     location: 'Global'
     autoVmRegistration: true
   }
@@ -103,10 +103,10 @@ module gateways '../gateway/main.bicep' = {
   params: {
     location: location
     addressPrefixes: [
-      '10.0.3.0/25'
+      '10.0.1.0/29'
+      '10.0.4.0/24'
     ]
-    localGatewayPublicIpAddress: ''
-    PublicIpName: ''
+    localGatewayPublicIpAddress: '62.31.74.157'
     subnetName: 'gatewaySubnet'
   }
   dependsOn: [
@@ -114,14 +114,14 @@ module gateways '../gateway/main.bicep' = {
   ]
 }
 module vpnConnection '../vpn/main.bicep' = {
-  name: 'vpn'
+  name: 'vpn-Connection'
   dependsOn: [
     gateways
     vnet
   ]
   params: {
-    connectionName: ''
-    sharedKey: ''
+    connectionName: 'azure-pfsense-vpn'
+    sharedKey: 'KZ@f$iYR8bbxa@w$tct5jDCe%Y@@g89&c#'
     location: location
   }
 }

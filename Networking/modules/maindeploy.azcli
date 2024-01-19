@@ -1,1 +1,1 @@
-  az deployment group create -n deployNet -g i365devuksouthrg --template-file ./vnet.bicep
+  az deployment group create -n deployNet -g developmentuksouthrg --template-file ./main.bicep -o jsonc

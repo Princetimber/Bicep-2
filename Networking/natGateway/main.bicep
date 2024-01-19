@@ -12,7 +12,7 @@ param publicIpName string = '${toLower(replace(resourceGroup().name, 'uksouthrg'
   'subnet1'
   'subnet2'
 ])
-param subnetName string
+param subnetName string = 'subnet1'
 
 @description('name of the virtual network to deploy the nat gateway in')
 param virtualNetworkName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}vnet'
@@ -54,17 +54,12 @@ resource natGateway 'Microsoft.Network/natGateways@2023-06-01' = {
     ]
     idleTimeoutInMinutes: 4
   }
-  zones: [
-    '1'
-    '2'
-    '3'
-  ]
 }
 resource natGatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2023-06-01' = {
   name: subnetName
   parent: vnet
   properties: {
-    addressPrefix: '100.15.2.0/24'
+    addressPrefix: '100.16.1.0/24'
     natGateway: {
       id: natGateway.id
     }
@@ -72,6 +67,26 @@ resource natGatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2023-06-01'
       id: nsg.id
     }
     defaultOutboundAccess: true
+    serviceEndpoints: [
+      {
+        service: 'Microsoft.Storage'
+      }
+      {
+        service: 'Microsoft.keyvault'
+      }
+      {
+        service: 'Microsoft.Sql'
+      }
+      {
+        service: 'Microsoft.AzureActiveDirectory'
+      }
+      {
+        service: 'Microsoft.web'
+      }
+      {
+        service: 'Microsoft.ContainerRegistry'
+      }
+    ]
   }
 }
 

@@ -37,6 +37,7 @@ output privateDnszoneName string = privateDnszone.name
 resource vnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privateDnszone
   name: '${privateDnszone.name}-link'
+  location: location
   properties: {
     registrationEnabled: autoVmRegistration
     virtualNetwork: {

@@ -32,6 +32,9 @@ param tags object = {
   displayName: 'storage account'
 }
 
+@description('Required: The valuse of the publicIpAddress allowed to access the storage account.')
+param publicIpAddress string
+
 var vnetName = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}vnet'
 resource vnet 'Microsoft.Network/virtualNetworks@2023-06-01' existing = {
   name: vnetName
@@ -72,15 +75,13 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
       ]
       ipRules: [
         {
-          value: ''
+          value: publicIpAddress
           action: 'Allow'
         }
       ]
     }
-    isNfsV3Enabled: true
-    isSftpEnabled: true
+    isNfsV3Enabled: false
     largeFileSharesState: 'Enabled'
-    allowedCopyScope: 'AzureSubscription'
     allowSharedKeyAccess: true
     isLocalUserEnabled: true
     keyPolicy: {
@@ -89,8 +90,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     immutableStorageWithVersioning: {
       enabled: true
       immutabilityPolicy: {
-        immutabilityPeriodSinceCreationInDays: 365
+        immutabilityPeriodSinceCreationInDays: 90
         allowProtectedAppendWrites: true
+        state: 'Unlocked'
       }
     }
   }

@@ -1,0 +1,149 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.24.24.22086",
+      "templateHash": "15352943764186433609"
+    }
+  },
+  "parameters": {
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "[format('{0}stga', uniqueString(resourceGroup().id))]",
+      "minLength": 3,
+      "maxLength": 24,
+      "metadata": {
+        "description": "The suffix of the storage account name."
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS",
+        "Standard_GZRS",
+        "Standard_RAGRS",
+        "Premium_LRS",
+        "Premium_ZRS"
+      ],
+      "metadata": {
+        "description": "Storage SKU."
+      }
+    },
+    "storageAccountKind": {
+      "type": "string",
+      "allowedValues": [
+        "Storage",
+        "StorageV2",
+        "BlobStorage",
+        "FileStorage",
+        "BlockBlobStorage"
+      ],
+      "metadata": {
+        "description": "storage kind."
+      }
+    },
+    "storageAccountAccessTier": {
+      "type": "string",
+      "allowedValues": [
+        "Hot",
+        "Cool"
+      ],
+      "metadata": {
+        "description": "storage access tier."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "resource location."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {
+        "environment": "dev",
+        "displayName": "storage account"
+      },
+      "metadata": {
+        "description": "resource tags."
+      }
+    },
+    "publicIpAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "Required: The valuse of the publicIpAddress allowed to access the storage account."
+      }
+    }
+  },
+  "variables": {
+    "vnetName": "[format('{0}vnet', toLower(replace(resourceGroup().name, 'uksouthrg', '')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "kind": "[parameters('storageAccountKind')]",
+      "sku": {
+        "name": "[parameters('sku')]"
+      },
+      "properties": {
+        "accessTier": "[parameters('storageAccountAccessTier')]",
+        "supportsHttpsTrafficOnly": true,
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": true,
+        "allowCrossTenantReplication": true,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Deny",
+          "virtualNetworkRules": [
+            {
+              "id": "[format('{0}/subnets/gatewaySubnet', resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')))]",
+              "action": "Allow",
+              "state": "Succeeded"
+            },
+            {
+              "id": "[format('{0}/subnets/subnet1', resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')))]",
+              "action": "Allow",
+              "state": "Succeeded"
+            },
+            {
+              "id": "[format('{0}/subnets/subnet2', resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')))]",
+              "action": "Allow",
+              "state": "Succeeded"
+            }
+          ],
+          "ipRules": [
+            {
+              "value": "[parameters('publicIpAddress')]",
+              "action": "Allow"
+            }
+          ]
+        },
+        "isNfsV3Enabled": false,
+        "largeFileSharesState": "Enabled",
+        "allowSharedKeyAccess": true,
+        "isLocalUserEnabled": true,
+        "keyPolicy": {
+          "keyExpirationPeriodInDays": 365
+        },
+        "immutableStorageWithVersioning": {
+          "enabled": true,
+          "immutabilityPolicy": {
+            "immutabilityPeriodSinceCreationInDays": 90,
+            "allowProtectedAppendWrites": true,
+            "state": "Unlocked"
+          }
+        }
+      },
+      "tags": "[parameters('tags')]"
+    }
+  ]
+}

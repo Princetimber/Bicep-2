@@ -1,0 +1,1 @@
+az deployment group create -g developmentuksouthrg -n deploylinuxvmandstorage --template-file ../../compute/module/main.bicep -o jsonc

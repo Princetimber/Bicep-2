@@ -1,10 +1,12 @@
 @description('key vault name')
-param keyVaultName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}kv'
+@minLength(3)
+@maxLength(24)
+param keyVaultName string = 'kv${uniqueString(resourceGroup().id)}'
 
 @description('virtual network name')
 param vnetName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}vnet'
 
-@description('subnet name')
+@description('secret name')
 param secretName string
 
 @description('secret value')
@@ -106,8 +108,8 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
     value: secretValue
     attributes: {
       enabled: true
-      exp: 31536000 // 1 year in seconds
-      nbf: 86400 // 1 day in seconds
+      exp: 1737158400 // 1 year in seconds
+      nbf: 1705622400 // 1 day in seconds
     }
     contentType: 'text/plain'
   }

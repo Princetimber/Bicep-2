@@ -11,7 +11,7 @@ param vnetName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''
 param vnetGatewayName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}vnetgw'
 
 @description('The name the public IP address to be created.')
-param PublicIpName string
+param PublicIpName string = '${toLower(replace(resourceGroup().name, 'uksouthrg', ''))}pubIpGW'
 
 @description('The name of the resource group to create the local gateway in.')
 param location string = resourceGroup().location
@@ -69,6 +69,9 @@ resource vnetGateway 'Microsoft.Network/virtualNetworkGateways@2023-06-01' = {
         name: PublicIpName
         id: publicIpAddress.id
         properties: {
+          publicIPAddress: {
+            id: publicIpAddress.id
+          }
           subnet: {
             id: subnetid
           }
