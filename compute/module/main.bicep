@@ -16,7 +16,7 @@ module storage '../storage/main.bicep' = {
       environment: 'dev'
       displayName: 'storageAccount'
     }
-    publicIpAddress: '62.31.74.157'
+    publicIpAddress: ''
   }
 }
 output storageAccountName string = storage.name
@@ -39,9 +39,9 @@ module virtualMachine '../linux/main.bicep' = {
     storageAccountType: 'Standard_LRS'
     subnetName: 'subnet1'
     vmSku: '22_04-lts-gen2'
-    autoShutdownNotificationEmail: 'olamide@fountview.co.uk'
-    aadClientId: '327d7e46-06a8-49a2-8749-515bb47e6d20'
-    tenantId: '93fb203c-ab10-44a3-a9fe-05ac5b6e4cb9'
+    autoShutdownNotificationEmail: ''
+    aadClientId: ''
+    tenantId: ''
     virtualMachineCount: 1
   }
   dependsOn: [
@@ -51,7 +51,6 @@ module virtualMachine '../linux/main.bicep' = {
 output linuxVMName string = virtualMachine.name
 output sshCommand array = virtualMachine.outputs.sshExecution
 
-/*
 module vm '../windows/main.bicep' = {
   name: 'windowsVM'
   params: {
@@ -73,4 +72,3 @@ module vm '../windows/main.bicep' = {
     storage
   ]
 }
-*/
