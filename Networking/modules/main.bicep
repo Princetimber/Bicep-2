@@ -106,7 +106,7 @@ module gateways '../gateway/main.bicep' = {
       '10.0.1.0/29'
       '10.0.4.0/24'
     ]
-    localGatewayPublicIpAddress: '62.31.74.157'
+    localGatewayPublicIpAddress: ''
     subnetName: 'gatewaySubnet'
   }
   dependsOn: [
@@ -121,7 +121,7 @@ module vpnConnection '../vpn/main.bicep' = {
   ]
   params: {
     connectionName: 'azure-pfsense-vpn'
-    sharedKey: 'KZ@f$iYR8bbxa@w$tct5jDCe%Y@@g89&c#'
+    sharedKey: ''
     location: location
   }
 }
