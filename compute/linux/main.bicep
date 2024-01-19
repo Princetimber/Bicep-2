@@ -157,6 +157,9 @@ resource availabilitySet 'Microsoft.Compute/availabilitySets@2023-09-01' = {
       id: proximityPlacementGroup.id
     }
   }
+  sku: {
+    name: 'Aligned'
+  }
 }
 
 resource nic 'Microsoft.Network/networkInterfaces@2023-06-01' = [for i in virtualMachineCountRange: {
@@ -233,8 +236,8 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-09-01' = [for i 
           ]
         }
         patchSettings: {
-          assessmentMode: 'AutomaticByPlatform'
-          patchMode: 'AutomaticByPlatform'
+          assessmentMode: 'ImageDefault'
+          patchMode: 'ImageDefault'
         }
       }
     }
@@ -269,6 +272,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-09-01' = [for i 
     type: 'SystemAssigned'
   }
 }]
+
 resource extension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = [for i in virtualMachineCountRange: {
   parent: virtualMachine[i]
   name: '${vmName}${i + 1}AADSSHLoginForLinux'
@@ -289,6 +293,19 @@ resource extension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = [
     provisionAfterExtensions: [
       'Microsoft.Compute.LinuxDiagnostic'
     ]
+  }
+}]
+
+resource diagnosticExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = [for i in virtualMachineCountRange: {
+  parent: virtualMachine[i]
+  name: '${vmName}${i + 1}LinuxDiagnostic'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Diagnostics'
+    type: 'LinuxDiagnostic'
+    typeHandlerVersion: '4.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
   }
 }]
 
